@@ -18,6 +18,9 @@ import logging
 import boto3
 from botocore.exceptions import ClientError
 
+from PIL import Image
+from PIL.ExifTags import TAGS
+
 load_dotenv()
 
 BUCKET_NAME = os.environ['BUCKET_NAME']
@@ -91,10 +94,19 @@ def upload_picture():
 
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
-            # file.save(filename)
-
             upload_pic(file, BUCKET_NAME, filename)
-            # return {"message": "success"}
+
+            image = Image.open(file)
+            # extract EXIF data
+            exifdata = image.getexif()
+            for tag_id in exifdata:
+                # get the tag name, instead of human unreadable tag id
+                tag = TAGS.get(tag_id, tag_id)
+                data = exifdata.get(tag_id)
+                # decode bytes
+                if isinstance(data, bytes):
+                    data = data.decode()
+                print(f"{tag:25}: {data}")
 
         pic = Picture(name=name,
                       url=f"https://{BUCKET_NAME}.s3.{REGION}.amazonaws.com/{file.filename}"
