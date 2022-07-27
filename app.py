@@ -33,7 +33,7 @@ app = Flask(__name__)
 # Get DB_URI from environ variable (useful for production/testing) or,
 # if not set there, use development local db.
 app.config['SQLALCHEMY_DATABASE_URI'] = (
-    os.environ['DATABASE_URL'].replace("postgres://", "postgresql://"))
+    os.environ['DATABASE_URL'].replace("postgres:///", "postgresql:///"))
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = False
 app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = True
@@ -93,13 +93,14 @@ def upload_picture():
         # file.save(filename)
 
         upload_pic(file, BUCKET_NAME, filename)
-        return {"message": "success"}
+        # return {"message": "success"}
 
     pic = Picture(
         url=f"https://{BUCKET_NAME}.s3.{REGION}.amazonaws.com/{file.filename}"
     )
     db.session.add(pic)
-    return pic
+    db.session.commit()
+    return {"message": "success"}
 
 
 @app.get('/pictures')
@@ -107,4 +108,4 @@ def get_pictures():
 
     pictures = Picture.query.all()
 
-    return({"pictures": pictures})
+    return render_template('')
