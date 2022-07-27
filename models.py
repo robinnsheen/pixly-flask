@@ -1,10 +1,13 @@
 """SQLAlchemy models for Warbler."""
 
-from datetime import datetime
+# from datetime import datetime
+# from enum import unique
 
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
+
+DEFAULT_IMAGE_URL = "https: // my-bucket-laithabdz.s3.amazonaws.com/default-placeholder.png"
 
 
 class Picture(db.Model):
@@ -16,6 +19,13 @@ class Picture(db.Model):
         db.Integer,
         primary_key=True,
     )
+
+    url = db.Column(
+        db.Text,
+        unique=True,
+        default=DEFAULT_IMAGE_URL,
+    )
+
 
 
 def connect_db(app):

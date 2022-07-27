@@ -17,7 +17,7 @@ from models import Picture, db
 # before we import our app, since that will have already
 # connected to the database
 
-os.environ['DATABASE_URL'] = "postgresql:///pixly_test"
+# os.environ['DATABASE_URL'] = "postgresql:///pixly_test"
 
 # Now we can import app
 
