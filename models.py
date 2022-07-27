@@ -3,7 +3,9 @@
 # from datetime import datetime
 # from enum import unique
 
+from flask import request
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import null
 
 db = SQLAlchemy()
 
@@ -20,12 +22,16 @@ class Picture(db.Model):
         primary_key=True,
     )
 
+    name = db.Column(
+        db.Text,
+        nullable=False
+    )
+
     url = db.Column(
         db.Text,
         unique=True,
         default=DEFAULT_IMAGE_URL,
     )
-
 
 
 def connect_db(app):

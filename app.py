@@ -3,7 +3,6 @@ from dotenv import load_dotenv
 from flask import (
     Flask, render_template, url_for, request, flash, redirect, session, abort,
 )
-from pyrsistent import s
 from werkzeug.utils import secure_filename
 
 
@@ -18,7 +17,6 @@ from models import (
 import logging
 import boto3
 from botocore.exceptions import ClientError
-import os
 
 load_dotenv()
 
@@ -38,7 +36,6 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = False
 app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = True
 app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 toolbar = DebugToolbarExtension(app)
 
 connect_db(app)
@@ -60,10 +57,10 @@ def upload_pic(file, bucket, object_name=None):
     # Upload the filse
     s3_client = boto3.client('s3')
     try:
-        response = s3_client.upload_fileobj(file, bucket, object_name,
-                                            ExtraArgs={
-                                                'ACL': 'public-read'}
-                                            )
+        s3_client.upload_fileobj(file, bucket, object_name,
+                                 ExtraArgs={
+                                     'ACL': 'public-read'}
+                                 )
     except ClientError as e:
         logging.error(e)
         return False
@@ -80,32 +77,37 @@ def homepage():
     return render_template('base.html')
 
 
-@app.post('/pictures')
+@app.route('/add', methods=["GET", "POST"])
 def upload_picture():
 
-    file = request.files['file']
+    form = PictureAddForm()
 
-    if file.filename == "":
-        return redirect(request.url)
+    if form.validate_on_submit():
+        file = request.files['file']
+        name = form.name.data
 
-    if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
-        # file.save(filename)
+        if file.filename == "":
+            return redirect(request.url)
 
-        upload_pic(file, BUCKET_NAME, filename)
-        # return {"message": "success"}
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            # file.save(filename)
 
-    pic = Picture(
-        url=f"https://{BUCKET_NAME}.s3.{REGION}.amazonaws.com/{file.filename}"
-    )
-    db.session.add(pic)
-    db.session.commit()
-    return {"message": "success"}
+            upload_pic(file, BUCKET_NAME, filename)
+            # return {"message": "success"}
+
+        pic = Picture(name=name,
+                      url=f"https://{BUCKET_NAME}.s3.{REGION}.amazonaws.com/{file.filename}"
+                      )
+        db.session.add(pic)
+        db.session.commit()
+        return redirect('/pictures')
+    else:
+        return render_template('addform.html', form=form)
 
 
 @app.get('/pictures')
 def get_pictures():
-
     pictures = Picture.query.all()
 
-    return render_template('')
+    return render_template('pictures.html', pictures=pictures)

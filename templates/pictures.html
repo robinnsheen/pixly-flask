@@ -1,11 +1,16 @@
 {% extends 'base.html' %}
 
-{% block title %} Users {% endblock title %}
+{% block title %} Pictures {% endblock title %}
 
 {% block content%}
 
-#
-#
-#
+{% for pic in pictures %}
+<div>
+  <h3>{{pic.name}}</h3>
+  <img src="{{pic.url}}" alt="{{pic.name}}">
+</div>
+
+{% endfor %}
 
 {% endblock content%}
+

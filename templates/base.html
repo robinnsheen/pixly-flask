@@ -7,12 +7,10 @@
   <title>{% block title %}{% endblock title %}</title>
 </head>
 <body>
-  <form action="/pictures" method="POST" enctype="multipart/form-data">
-    <input type= "file" name="file">
-    <button type="submit">click me</button>
-  </form>
-  <img src="https://my-bucket-laithabdz.s3.amazonaws.com/iu.jpg" width="300px" height="500px
-  ">
+  <a href="/add" class="btn btn-primary">Add Picture Here</a>
+  <a href="/pictures" class="btn btn-primary">View Pictures</a>
+  {% block content %}
 
+  {% endblock %}
 </body>
 </html>
