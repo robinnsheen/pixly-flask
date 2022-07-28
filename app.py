@@ -47,6 +47,28 @@ toolbar = DebugToolbarExtension(app)
 connect_db(app)
 
 
+def get_exif(file):
+    exif = {}
+    url_open = urlopen(
+        f"https://{BUCKET_NAME}.s3.{REGION}.amazonaws.com/{file.filename}")
+
+    # getting metadata
+    img = Image.open(
+        url_open)
+    exifdata = img.getexif()
+
+    for tag_id in exifdata:
+        # get the tag name, instead of human unreadable tag id
+        tag = TAGS.get(tag_id, tag_id)
+        data = exifdata.get(tag_id)
+
+        # decode bytes
+        if isinstance(data, bytes):
+            data = data.decode()
+        exif[f"{tag}"] = f"{data}"
+    return exif
+
+
 def upload_pic(file, bucket, object_name=None):
     """Upload a file to an S3 bucket
 
@@ -94,42 +116,36 @@ def upload_picture():
 
         if file.filename == "":
             return redirect(request.url)
-        exif = {}
-        breakpoint()
+
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             upload_pic(file, BUCKET_NAME, filename)
-            url_open = urlopen(
-                f"https://{BUCKET_NAME}.s3.{REGION}.amazonaws.com/{file.filename}")
-            breakpoint()
-            # getting metadata
-            img = Image.open(
-                url_open)
-            exifdata = img.getexif()
-            for tag_id in exifdata:
-                # get the tag name, instead of human unreadable tag id
-                tag = TAGS.get(tag_id, tag_id)
-                data = exifdata.get(tag_id)
-                # decode bytes
-                if isinstance(data, bytes):
-                    data = data.decode()
-                print(f"{tag}: {data}")
-                exif[f"{tag}"] = f"{data}"
-        json_exif = json.dumps(exif)
+            exif = get_exif(file)
+            json_exif = json.dumps(exif)
 
-        pic = Picture(name=name,
-                      url=f"https://{BUCKET_NAME}.s3.{REGION}.amazonaws.com/{file.filename}",
-                      exif=json_exif,
-                      )
-        db.session.add(pic)
-        db.session.commit()
+            pic = Picture(name=name,
+                          url=f"https://{BUCKET_NAME}.s3.{REGION}.amazonaws.com/{file.filename}",
+                          exif=json_exif,
+                          )
+            db.session.add(pic)
+            db.session.commit()
+
         return redirect('/pictures')
     else:
         return render_template('addform.html', form=form)
 
 
-@ app.get('/pictures')
+@app.get('/pictures')
 def get_pictures():
     pictures = Picture.query.all()
 
     return render_template('pictures.html', pictures=pictures)
+
+
+@app.get('/pictures/<int:id>')
+def get_picture(id):
+
+    picture = Picture.query.get_or_404(id)
+    exifs = json.loads(picture.exif)
+
+    return render_template('picture.html', picture=picture, exifs=exifs)

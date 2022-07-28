@@ -1,0 +1,12 @@
+.pictures {
+    display: inline-block;
+}
+
+.picture img {
+    width: 400px;
+}
+
+.exif-list li {
+    margin-bottom: 1rem;
+    font-size: larger;
+}

@@ -5,9 +5,17 @@
 {% block content%}
 
 {% for pic in pictures %}
-<div>
-  <h3>{{pic.name}}</h3>
-  <img src="{{pic.url}}" alt="{{pic.name}}">
+<div class="pictures">
+  <h2>{{pic.name}}</h2>
+
+    <div class="picture">
+      <a href="/pictures/{{pic.id}}">
+      <img class src="{{pic.url}}" alt="{{pic.name}}">
+    </a>
+    </div>
+
+  </a>
+
 </div>
 
 {% endfor %}
