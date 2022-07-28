@@ -1,13 +1,16 @@
 import os
 from dotenv import load_dotenv
 from flask import (
-    Flask, render_template, url_for, request, flash, redirect, session, abort,
+    Flask, jsonify, render_template, url_for, request, flash, redirect, session, abort,
 )
 from werkzeug.utils import secure_filename
 
-
+from PIL import Image
+from urllib. request import urlopen
 from flask_debugtoolbar import DebugToolbarExtension
 # from aws import Aws
+
+import json
 
 from forms import (
     PictureAddForm
@@ -18,7 +21,7 @@ import logging
 import boto3
 from botocore.exceptions import ClientError
 
-from PIL import Image
+
 from PIL.ExifTags import TAGS
 
 load_dotenv()
@@ -91,14 +94,18 @@ def upload_picture():
 
         if file.filename == "":
             return redirect(request.url)
-
+        exif = {}
+        breakpoint()
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             upload_pic(file, BUCKET_NAME, filename)
-
-            image = Image.open(file)
-            # extract EXIF data
-            exifdata = image.getexif()
+            url_open = urlopen(
+                f"https://{BUCKET_NAME}.s3.{REGION}.amazonaws.com/{file.filename}")
+            breakpoint()
+            # getting metadata
+            img = Image.open(
+                url_open)
+            exifdata = img.getexif()
             for tag_id in exifdata:
                 # get the tag name, instead of human unreadable tag id
                 tag = TAGS.get(tag_id, tag_id)
@@ -106,10 +113,13 @@ def upload_picture():
                 # decode bytes
                 if isinstance(data, bytes):
                     data = data.decode()
-                print(f"{tag:25}: {data}")
+                print(f"{tag}: {data}")
+                exif[f"{tag}"] = f"{data}"
+        json_exif = json.dumps(exif)
 
         pic = Picture(name=name,
-                      url=f"https://{BUCKET_NAME}.s3.{REGION}.amazonaws.com/{file.filename}"
+                      url=f"https://{BUCKET_NAME}.s3.{REGION}.amazonaws.com/{file.filename}",
+                      exif=json_exif,
                       )
         db.session.add(pic)
         db.session.commit()
@@ -118,7 +128,7 @@ def upload_picture():
         return render_template('addform.html', form=form)
 
 
-@app.get('/pictures')
+@ app.get('/pictures')
 def get_pictures():
     pictures = Picture.query.all()
 

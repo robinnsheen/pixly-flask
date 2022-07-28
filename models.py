@@ -33,6 +33,10 @@ class Picture(db.Model):
         default=DEFAULT_IMAGE_URL,
     )
 
+    exif = db.Column(
+        db.Text,
+    )
+
 
 def connect_db(app):
     """Connect this database to provided Flask app.
