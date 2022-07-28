@@ -74,6 +74,7 @@ def upload_picture():
             pic = Picture(name=name,
                           url=f"https://{BUCKET_NAME}.s3.{REGION}.amazonaws.com/{file.filename}",
                           exif=json_exif,
+                          obj_name=filename
                           )
             db.session.add(pic)
             db.session.commit()

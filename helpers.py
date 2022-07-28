@@ -14,13 +14,12 @@ from PIL.ImageFilter import (
     EMBOSS, FIND_EDGES, SMOOTH, SMOOTH_MORE, SHARPEN
 )
 
+load_dotenv()
+
 BUCKET_NAME = os.environ['BUCKET_NAME']
 REGION = os.environ['REGION']
 UPLOAD_FOLDER = './imgs'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
-
-
-load_dotenv()
 
 
 def upload_pic(file, bucket, object_name=None):
@@ -86,10 +85,13 @@ def allowed_file(filename):
 
 def filter(file):
 
+    file = open("mypic.jpg", "x")
+    breakpoint()
 
-
-    pic = open(filename, mode='r', buffering=-1, encoding=None,
-               errors=None, newline=None, closefd=True, opener=None)
+    s3 = boto3.client('s3')
+    with open(file.name, 'wb') as f:
+        s3.download_fileobj(BUCKET_NAME, file.obj_name, f)
+        breakpoint()
 
     url_open = urlopen(file.url)
 

@@ -35,6 +35,10 @@ class Picture(db.Model):
         db.Text,
     )
 
+    obj_name = db.Column(
+        db.Text,
+    )
+
 
 def connect_db(app):
     """Connect this database to provided Flask app.
