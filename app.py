@@ -17,7 +17,8 @@ from forms import (
 from models import (
     db, connect_db, Picture, )
 
-from helpers import (upload_pic, get_exif, allowed_file, BUCKET_NAME, REGION)
+from helpers import (upload_pic, get_exif, allowed_file,
+                     filter, BUCKET_NAME, REGION)
 
 load_dotenv()
 
@@ -98,3 +99,11 @@ def get_picture(id):
     exifs = json.loads(picture.exif)
 
     return render_template('picture.html', picture=picture, exifs=exifs)
+
+
+@app.post('/pictures/<int:id>')
+def filter_image(id):
+
+    picture = Picture.query.get_or_404(id)
+    filter(picture)
+    return redirect('/pictures')

@@ -5,9 +5,14 @@ import logging
 import boto3
 from botocore.exceptions import ClientError
 
-from PIL import Image
+from PIL import Image, ImageFilter
 from urllib. request import urlopen
 from PIL.ExifTags import TAGS
+
+from PIL.ImageFilter import (
+    BLUR, CONTOUR, DETAIL, EDGE_ENHANCE, EDGE_ENHANCE_MORE,
+    EMBOSS, FIND_EDGES, SMOOTH, SMOOTH_MORE, SHARPEN
+)
 
 BUCKET_NAME = os.environ['BUCKET_NAME']
 REGION = os.environ['REGION']
@@ -77,3 +82,23 @@ def allowed_file(filename):
     """
     return '.' in filename and \
         filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+def filter(file):
+
+
+
+    pic = open(filename, mode='r', buffering=-1, encoding=None,
+               errors=None, newline=None, closefd=True, opener=None)
+
+    url_open = urlopen(file.url)
+
+    im = Image.open(
+        url_open)
+    im1 = im.filter(ImageFilter.BLUR)
+
+    im2 = im.filter(ImageFilter.MinFilter(3))
+
+    im3 = im.filter(ImageFilter.MinFilter)
+
+    upload_pic(im3, BUCKET_NAME)
