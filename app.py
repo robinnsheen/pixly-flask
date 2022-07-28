@@ -105,6 +105,11 @@ def get_picture(id):
 @app.post('/pictures/<int:id>')
 def filter_image(id):
 
+    filterType = request.form['filter']
     picture = Picture.query.get_or_404(id)
-    filter(picture)
+    filter(picture, filterType)
     return redirect('/pictures')
+
+
+@app.route('/pictures/<int:id>', method['DELETE'])
+def delete_iamge

@@ -5,14 +5,15 @@ import logging
 import boto3
 from botocore.exceptions import ClientError
 
-from PIL import Image, ImageFilter
+from PIL import Image, ImageFilter, Image
 from urllib. request import urlopen
 from PIL.ExifTags import TAGS
 
 from PIL.ImageFilter import (
     BLUR, CONTOUR, DETAIL, EDGE_ENHANCE, EDGE_ENHANCE_MORE,
-    EMBOSS, FIND_EDGES, SMOOTH, SMOOTH_MORE, SHARPEN
+    EMBOSS, FIND_EDGES, SMOOTH, SMOOTH_MORE, SHARPEN,
 )
+import io
 
 load_dotenv()
 
@@ -61,6 +62,7 @@ def get_exif(file):
     # getting metadata
     img = Image.open(
         url_open)
+    breakpoint()
     exifdata = img.getexif()
 
     for tag_id in exifdata:
@@ -83,24 +85,31 @@ def allowed_file(filename):
         filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-def filter(file):
+def filter(file, filterType):
 
-    file = open("mypic.jpg", "x")
-    breakpoint()
-
+    # file = open("imgs/pic3.jpg", "rb")
+    # io.bytesIO # like a file :file:
+    b = io.BytesIO()
     s3 = boto3.client('s3')
-    with open(file.name, 'wb') as f:
-        s3.download_fileobj(BUCKET_NAME, file.obj_name, f)
-        breakpoint()
 
-    url_open = urlopen(file.url)
+    s3.download_fileobj(BUCKET_NAME, file.obj_name, b)
 
-    im = Image.open(
-        url_open)
-    im1 = im.filter(ImageFilter.BLUR)
+    # url_open = urlopen(file.url)
 
-    im2 = im.filter(ImageFilter.MinFilter(3))
+    im = Image.open(b)
+    if(filterType == 'black-and-white'):
+        im = im.convert("L")
 
-    im3 = im.filter(ImageFilter.MinFilter)
+    elif(filterType == 'blur'):
+        im = im.filter(ImageFilter.BoxBlur(25))
 
-    upload_pic(im3, BUCKET_NAME)
+    im.show()
+
+    b.seek(0)
+    im.save(b, 'JPEG')
+    im.close()
+    b.seek(0)
+    s3.upload_fileobj(b, BUCKET_NAME, file.obj_name,
+                      ExtraArgs={
+                          'ACL': 'public-read'}
+                      )

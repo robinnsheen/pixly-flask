@@ -13,6 +13,10 @@
       <img class src="{{pic.url}}" alt="{{pic.name}}">
     </a>
     <form method="POST" action="/pictures/{{pic.id}}" >
+      <select name="filter" id="drop-down">
+        <option value="black-and-white">black and white</option>
+        <option value="blur">blur</option>
+      </select>
       <button submit="submit">edit</button></form>
     </div>
 
