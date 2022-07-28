@@ -5,8 +5,7 @@ from flask import (
 )
 from werkzeug.utils import secure_filename
 
-from PIL import Image
-from urllib. request import urlopen
+
 from flask_debugtoolbar import DebugToolbarExtension
 # from aws import Aws
 
@@ -17,19 +16,10 @@ from forms import (
 )
 from models import (
     db, connect_db, Picture, )
-import logging
-import boto3
-from botocore.exceptions import ClientError
 
-
-from PIL.ExifTags import TAGS
+from helpers import (upload_pic, get_exif, allowed_file, BUCKET_NAME, REGION)
 
 load_dotenv()
-
-BUCKET_NAME = os.environ['BUCKET_NAME']
-REGION = os.environ['REGION']
-UPLOAD_FOLDER = './imgs'
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
 
 app = Flask(__name__)
@@ -47,66 +37,23 @@ toolbar = DebugToolbarExtension(app)
 connect_db(app)
 
 
-def get_exif(file):
-    exif = {}
-    url_open = urlopen(
-        f"https://{BUCKET_NAME}.s3.{REGION}.amazonaws.com/{file.filename}")
-
-    # getting metadata
-    img = Image.open(
-        url_open)
-    exifdata = img.getexif()
-
-    for tag_id in exifdata:
-        # get the tag name, instead of human unreadable tag id
-        tag = TAGS.get(tag_id, tag_id)
-        data = exifdata.get(tag_id)
-
-        # decode bytes
-        if isinstance(data, bytes):
-            data = data.decode()
-        exif[f"{tag}"] = f"{data}"
-    return exif
-
-
-def upload_pic(file, bucket, object_name=None):
-    """Upload a file to an S3 bucket
-
-    :param file: File to upload
-    :param bucket: Bucket to upload to
-    :param object_name: S3 object name. If not specified then file is used
-    :return: True if file was uploaded, else False
-    """
-
-    # If S3 object_name was not specified, use file
-    if object_name is None:
-        object_name = os.path.basename(file)
-
-    # Upload the filse
-    s3_client = boto3.client('s3')
-    try:
-        s3_client.upload_fileobj(file, bucket, object_name,
-                                 ExtraArgs={
-                                     'ACL': 'public-read'}
-                                 )
-    except ClientError as e:
-        logging.error(e)
-        return False
-
-
-def allowed_file(filename):
-    return '.' in filename and \
-        filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-
 @app.get('/')
 def homepage():
+    """Show homepage and render base.html"""
 
     return render_template('base.html')
 
 
 @app.route('/add', methods=["GET", "POST"])
 def upload_picture():
+    """ Add a picture:
+
+    Show form if GET. If valid form submission,
+    Upload a picture from form to aws bucket and add a picture to the database
+
+    If filename is empty, redirect to /add.
+    Otherwise Redirect to /pictures
+    """
 
     form = PictureAddForm()
 
@@ -137,6 +84,7 @@ def upload_picture():
 
 @app.get('/pictures')
 def get_pictures():
+    """Show pictures. Render pictures.html with all pictures in database"""
     pictures = Picture.query.all()
 
     return render_template('pictures.html', pictures=pictures)
@@ -144,6 +92,7 @@ def get_pictures():
 
 @app.get('/pictures/<int:id>')
 def get_picture(id):
+    """Show a picture with list of exif data. Renders picture.html"""
 
     picture = Picture.query.get_or_404(id)
     exifs = json.loads(picture.exif)

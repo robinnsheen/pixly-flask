@@ -1,7 +1,4 @@
-"""SQLAlchemy models for Warbler."""
-
-# from datetime import datetime
-# from enum import unique
+"""SQLAlchemy models for Pixly."""
 
 from flask import request
 from flask_sqlalchemy import SQLAlchemy
@@ -9,7 +6,8 @@ from sqlalchemy import null
 
 db = SQLAlchemy()
 
-DEFAULT_IMAGE_URL = "https: // my-bucket-laithabdz.s3.amazonaws.com/default-placeholder.png"
+DEFAULT_IMAGE_URL = (
+    "https: // my-bucket-laithabdz.s3.amazonaws.com/default-placeholder.png")
 
 
 class Picture(db.Model):
