@@ -7,13 +7,26 @@
 <div class="picture">
   <h2>{{picture.name}}</h2>
   <img class src="{{picture.url}}" alt="{{picture.name}}">
+  <div class="pic-options">
+    <form class="dropdown" method="POST" action="/pictures/{{picture.id}}" >
+      <select name="filter" id="drop-down">
+        <option value="black-and-white">black and white</option>
+        <option value="blur">blur</option>
+      </select>
+      <button submit="submit">Edit</button>
+    </form>
+    <form method="POST" action="/pictures/delete/{{picture.id}}">
+      <button submit="submit">Delete</button>
+    </form>
+  </div>
+  <h3>EXIF data</h3>
+  <ul class="exif-list">
+    {% for exif in exifs %}
+    <li>{{exif}}: {{exifs[exif]}}</li>
+    {% endfor %}
+  </ul>
 </div>
-<h3>exif data</h3>
-<ul class="exif-list">
-  {% for exif in exifs %}
-  <li>{{exif}}: {{exifs[exif]}}</li>
-  {% endfor %}
-</ul>
+
 
 
 

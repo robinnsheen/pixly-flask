@@ -31,7 +31,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = (
     os.environ['DATABASE_URL'].replace("postgres:///", "postgresql:///"))
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = False
-app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = True
+app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
 toolbar = DebugToolbarExtension(app)
 
@@ -42,7 +42,7 @@ connect_db(app)
 def homepage():
     """Show homepage and render base.html"""
 
-    return render_template('base.html')
+    return redirect('/pictures')
 
 
 @app.route('/add', methods=["GET", "POST"])
@@ -104,12 +104,18 @@ def get_picture(id):
 
 @app.post('/pictures/<int:id>')
 def filter_image(id):
+    """Filter a picture and redirect to /pictures/<int:id>"""
 
     filterType = request.form['filter']
     picture = Picture.query.get_or_404(id)
     filter(picture, filterType)
-    return redirect('/pictures')
+    return redirect(f'/pictures/{id}')
 
 
-@app.route('/pictures/<int:id>', method['DELETE'])
-def delete_iamge
+@app.post('/pictures/delete/<int:id>')
+def delete_image(id):
+    """Delete a picture from database and redirect to /pictures"""
+    pic = Picture.query.get_or_404(id)
+    db.session.delete(pic)
+    db.session.commit()
+    return redirect("/pictures")

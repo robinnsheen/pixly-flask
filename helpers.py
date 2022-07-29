@@ -62,7 +62,6 @@ def get_exif(file):
     # getting metadata
     img = Image.open(
         url_open)
-    breakpoint()
     exifdata = img.getexif()
 
     for tag_id in exifdata:
@@ -84,18 +83,18 @@ def allowed_file(filename):
     return '.' in filename and \
         filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+# TODO: make a copy of a pic, make edits, hit save to finalize or undo
+
 
 def filter(file, filterType):
-
-    # file = open("imgs/pic3.jpg", "rb")
-    # io.bytesIO # like a file :file:
+    """Download image from AWS bucket, edit image, and reupload to AWS"""
     b = io.BytesIO()
     s3 = boto3.client('s3')
 
+    # download image from AWS and open in bytes-like object
     s3.download_fileobj(BUCKET_NAME, file.obj_name, b)
 
-    # url_open = urlopen(file.url)
-
+    # filter image
     im = Image.open(b)
     if(filterType == 'black-and-white'):
         im = im.convert("L")
@@ -103,12 +102,12 @@ def filter(file, filterType):
     elif(filterType == 'blur'):
         im = im.filter(ImageFilter.BoxBlur(25))
 
-    im.show()
-
     b.seek(0)
     im.save(b, 'JPEG')
     im.close()
     b.seek(0)
+
+    # upload to AWS
     s3.upload_fileobj(b, BUCKET_NAME, file.obj_name,
                       ExtraArgs={
                           'ACL': 'public-read'}

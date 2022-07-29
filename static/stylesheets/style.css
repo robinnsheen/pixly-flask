@@ -1,3 +1,11 @@
+.picture {
+    text-align: center;
+}
+
+.picture ul {
+    padding: 0;
+}
+
 .pictures {
     display: inline-block;
 }
@@ -11,11 +19,75 @@
     font-size: larger;
 }
 
-nav a{
+nav {
 
     background-color: aquamarine;
+    text-align: center;
+    padding: 1rem;
+    font-family: 'Bebas Neue', cursive;
+    font-size: 2rem;
+    margin-bottom: 3rem;
+    justify-items: center;
+}
+
+nav a {
     text-decoration: none;
-    margin-left: 500px;
+    margin: 1rem;
+    color: rgb(18, 107, 97);
+    padding: 1rem;
+}
+
+nav a:hover {
+    background-color: white;
+}
 
 
+.add-form {
+    text-align: center;
+    margin-top: 2rem;
+    width: 400px;
+    margin: auto;
+    border: 1px solid black;
+    padding: 2rem;
+}
+
+.add-form div{
+    padding-top: 1rem;
+}
+
+.add-form input {
+    width: 100%;
+}
+
+.add-form label {
+    display: block;
+    text-align: left;
+    padding-bottom: 0.5rem;
+    font-weight: bold;
+}
+
+button {
+    width: fit-content;
+    color: rgb(255, 255, 255);
+    background-color: rgb(97, 164, 142);
+    border-radius: 5px;
+    height: 2rem;
+    border: none;
+}
+
+button:hover {
+    background-color: rgb(55, 117, 104);
+
+}
+
+select {
+    height: 2rem;
+}
+
+.dropdown {
+    margin: 1rem 0rem;
+}
+
+.pic-options {
+    text-align: center;
 }

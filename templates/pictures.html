@@ -12,12 +12,18 @@
       <a href="/pictures/{{pic.id}}">
       <img class src="{{pic.url}}" alt="{{pic.name}}">
     </a>
-    <form method="POST" action="/pictures/{{pic.id}}" >
-      <select name="filter" id="drop-down">
-        <option value="black-and-white">black and white</option>
-        <option value="blur">blur</option>
-      </select>
-      <button submit="submit">edit</button></form>
+    <div class="pic-options">
+      <form method="POST" class="dropdown" action="/pictures/{{pic.id}}" >
+        <select name="filter" id="drop-down">
+          <option value="black-and-white">black and white</option>
+          <option value="blur">blur</option>
+        </select>
+        <button submit="submit">Edit</button>
+      </form>
+      <form method="POST" action="/pictures/delete/{{pic.id}}">
+        <button submit="submit">Delete</button>
+      </form>
+    </div>
     </div>
 
   </a>
