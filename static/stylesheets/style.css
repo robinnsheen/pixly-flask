@@ -19,7 +19,15 @@
     font-size: larger;
 }
 
+#search {
+    margin: auto;
+    width: 400px;
+    text-align: center;
+}
 
+#search input {
+    width: 75%;
+}
 
 nav {
 
