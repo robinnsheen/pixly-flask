@@ -19,6 +19,8 @@ load_dotenv()
 
 BUCKET_NAME = os.environ['BUCKET_NAME']
 REGION = os.environ['REGION']
+ACCESS_KEY = os.environ['ACCESS_KEY']
+ACCESS_SECRET = os.environ['ACCESS_SECRET']
 UPLOAD_FOLDER = './imgs'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
@@ -37,7 +39,8 @@ def upload_pic(file, bucket, object_name=None):
         object_name = os.path.basename(file)
 
     # Upload the file
-    s3_client = boto3.client('s3')
+    s3_client = boto3.client(
+        's3', region_name=REGION, aws_access_key_id=ACCESS_KEY, aws_secret_access_key=ACCESS_SECRET)
     try:
         s3_client.upload_fileobj(file, bucket, object_name,
                                  ExtraArgs={
@@ -89,7 +92,8 @@ def allowed_file(filename):
 def filter(file, filterType):
     """Download image from AWS bucket, edit image, and reupload to AWS"""
     b = io.BytesIO()
-    s3 = boto3.client('s3')
+    s3 = boto3.client('s3', region_name=REGION,
+                      aws_access_key_id=ACCESS_KEY, aws_secret_access_key=ACCESS_SECRET)
 
     # download image from AWS and open in bytes-like object
     s3.download_fileobj(BUCKET_NAME, file.obj_name, b)
