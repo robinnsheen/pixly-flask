@@ -1,4 +1,5 @@
 import os
+from unittest.mock import seal
 from dotenv import load_dotenv
 from flask import (
     Flask, jsonify, render_template, url_for, request, flash, redirect, session, abort,
@@ -119,3 +120,12 @@ def delete_image(id):
     db.session.delete(pic)
     db.session.commit()
     return redirect("/pictures")
+
+
+@app.get('/pictures/search')
+def search():
+    search_term = request.args['search']
+    result = db.session.execute(
+        f"SELECT * FROM pictures WHERE ts @@ to_tsquery(:term)", {"term": search_term})
+
+    return render_template('pictures.html', pictures=result)

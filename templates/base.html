@@ -15,7 +15,11 @@
     <a href="/add" class="btn btn-primary">Add Picture</a>
     <a href="/pictures" class="btn btn-primary">View Pictures</a>
   </nav>
-
+  <form id="search" action="{{url_for('search')}}">
+    <input type="search"  name="search" placeholder="search exif" >
+  </input>
+  <button>search</button>
+  </form>
   {% block content %}
 
   {% endblock %}
