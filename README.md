@@ -1,4 +1,4 @@
-# pixly-flask-backend
+# pixly-flask
 https://r26-rs-pixly.herokuapp.com/pictures
 
 # View, upload, and edit pictures in our Pixly gallery! Search for your favorite picture by camera, resolution, author, etc.
